@@ -28,6 +28,9 @@ t.columns = ["P0", "P1", "P2", "A0", "A1", "A2", "L0", "L1", "L2", "Cx", "Cy", "
 maxX = t.Sx.max()
 maxY = t.Sy.max()
 
+if(deleteMethod == "edgeDiffMinNov"):
+    t["edgeDiff"] = t["L2"] - t["L0"]
+
 points = []
 
 # ランダム削除
@@ -264,8 +267,7 @@ def deleteTriangle(index):
     x = index // (maxY+1)
     y = index % (maxY+1)
     tmp = t[(t["Sx"] == x) & (t["Sy"] == y)]
-    if(deleteMethod == "edgeDiffMinNov"):
-        tmp["edgeDiff"] = tmp["L2"] - tmp["L0"]
+    
     
     random.seed(index)
     print(str(x) + ", " + str(y) + ": " + str(tmp.shape[0]))
