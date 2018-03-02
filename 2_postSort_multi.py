@@ -14,13 +14,14 @@ import subprocess
 
 ############# パラメータ #################
 seed = 1
-threshold = 17
+threshold = 50
 kNearestNeighbor = 5
 file = 'triangles_15_200_0_3_240_240_0_0_10_170_4000x4000_bugfix.csv'
 #deleteMethod = "random"
 #deleteMethod = "minNov"
 #deleteMethod = "minNovAcc"
-deleteMethod = "edgeDiff"
+#deleteMethod = "edgeDiff"
+deleteMethod = "edgeDiffMinNov"
 ############# パラメータ #################
 t = pd.read_csv(file, header=None)
 t.columns = ["P0", "P1", "P2", "A0", "A1", "A2", "L0", "L1", "L2", "Cx", "Cy", "Sx", "Sy", "E"]
@@ -198,6 +199,30 @@ def calcNoveltyE(triangle):
     
     return diffNeighbor
 
+def calcNoveltyEdgeDiff(triangle):
+    arrX = np.ones(triangle.shape[0]) * float(triangle[0:1].edgeDiff)
+    for i in range(1, triangle.shape[0]):
+        arrX = np.c_[arrX, np.ones(triangle.shape[0]) * float(triangle[i: i+1].edgeDiff)]
+
+    diffX = arrX - arrX.T
+    diffX = diffX ** 2
+
+    diff = diffX
+
+    s = 0
+    for i in diff[0].argsort()[0:kNearestNeighbor]:
+        s = s + diff[0][i]
+
+    diffNeighbor = np.ones(1) * s
+
+    for r in range(1, diff.shape[0]):
+        s = 0
+        for i in diff[r].argsort()[0:kNearestNeighbor]:
+            s = s + diff[r][i]
+        diffNeighbor = np.c_[diffNeighbor, np.ones(1) * s]
+    
+    return diffNeighbor
+
 # 短辺と長辺の差
 def deleteTriangleFromEdgeDiff(triangle):
     m = triangle.L2.max()
@@ -229,10 +254,18 @@ def deleteTriangleMinNoveltyAcc(triangle):
     triangle = triangle.drop(triangle.index[novelty.argmin()])
     return triangle
 
+# ノベルティの最小値で削除
+def deleteTriangleEdgeDiffMinNovelty(triangle):
+    novelty = calcNoveltyEdgeDiff(triangle)
+    triangle = triangle.drop(triangle.index[novelty.argmin()])
+    return triangle
+
 def deleteTriangle(index):
     x = index // (maxY+1)
     y = index % (maxY+1)
     tmp = t[(t["Sx"] == x) & (t["Sy"] == y)]
+    if(deleteMethod == "edgeDiffMinNov"):
+        tmp["edgeDiff"] = tmp["L2"] - tmp["L0"]
     
     random.seed(index)
     print(str(x) + ", " + str(y) + ": " + str(tmp.shape[0]))
@@ -247,6 +280,8 @@ def deleteTriangle(index):
             tmp = deleteTriangleMinNoveltyAcc(tmp)
         elif (deleteMethod == "edgeDiff"):
             tmp = deleteTriangleFromEdgeDiff(tmp)
+        elif (deleteMethod == "edgeDiffMinNov"):
+            tmp = deleteTriangleEdgeDiffMinNovelty(tmp)
 
     tmp.to_csv("tmp/" + str(x) + "_" + str(y) + "_" + re.sub('.csv', '_' + str(deleteMethod) + '_' + str(threshold) + "_" + str(kNearestNeighbor) + '.csv', file), header=False, index=False, mode="a")
 
