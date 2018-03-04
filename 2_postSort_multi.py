@@ -19,7 +19,8 @@ kNearestNeighbor = 5
 file = 'triangles_15_200_0_3_240_240_0_0_10_170_4000x4000_bugfix.csv'
 #deleteMethod = "random"
 #deleteMethod = "minNov"
-#deleteMethod = "minNovAcc"
+#deleteMethod = "minNovE"
+#deleteMethod = "maxNovE"
 #deleteMethod = "edgeDiff"
 #deleteMethod = "edgeDiffMinNov"
 deleteMethod = "angleDiff"
@@ -267,9 +268,15 @@ def deleteTriangleRandom(triangle):
     return triangle
 
 # ノベルティの最小値で削除
-def deleteTriangleMinNoveltyAcc(triangle):
+def deleteTriangleMinNoveltyE(triangle):
     novelty = calcNoveltyE(triangle)
     triangle = triangle.drop(triangle.index[novelty.argmin()])
+    return triangle
+
+# ノベルティの最大値で削除
+def deleteTriangleMaxNoveltyE(triangle):
+    novelty = calcNoveltyE(triangle)
+    triangle = triangle.drop(triangle.index[novelty.argmax()])
     return triangle
 
 # ノベルティの最小値で削除
@@ -292,8 +299,10 @@ def deleteTriangle(index):
             tmp = deleteTriangleMinNovelty(tmp)
         elif (deleteMethod == "random"):
             tmp = deleteTriangleRandom(tmp)
-        elif (deleteMethod == "minNovAcc"):
-            tmp = deleteTriangleMinNoveltyAcc(tmp)
+        elif (deleteMethod == "minNovE"):
+            tmp = deleteTriangleMinNoveltyE(tmp)
+        elif (deleteMethod == "maxNovE"):
+            tmp = deleteTriangleMaxNoveltyE(tmp)
         elif (deleteMethod == "edgeDiff"):
             tmp = deleteTriangleFromEdgeDiff(tmp)
         elif (deleteMethod == "edgeDiffMinNov"):
