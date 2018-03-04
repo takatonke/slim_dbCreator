@@ -314,10 +314,13 @@ def deleteTriangle(index):
         elif (deleteMethod == "minNovE_minNovE_edgeDiff"):
             if (i % 3 == 0):
                 tmp = deleteTriangleMinNoveltyE(tmp)
+                i = i + 1
             elif (i % 3 == 1):
                 tmp = deleteTriangleMinNoveltyE(tmp)
+                i = i + 1
             elif (i % 3 == 2):
                 tmp = deleteTriangleFromEdgeDiff(tmp)
+                i = i + 1
 
     tmp.to_csv("tmp/" + str(x) + "_" + str(y) + "_" + re.sub('.csv', '_' + str(deleteMethod) + '_' + str(threshold) + "_" + str(kNearestNeighbor) + '.csv', file), header=False, index=False, mode="a")
 
