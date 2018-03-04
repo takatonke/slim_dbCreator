@@ -23,7 +23,8 @@ file = 'triangles_15_200_0_3_240_240_0_0_10_170_4000x4000_bugfix.csv'
 #deleteMethod = "maxNovE"
 #deleteMethod = "edgeDiff"
 #deleteMethod = "edgeDiffMinNov"
-deleteMethod = "angleDiff"
+#deleteMethod = "angleDiff"
+deleteMethod = "minNovE_minNovE_edgeDiff"
 ############# パラメータ #################
 t = pd.read_csv(file, header=None)
 t.columns = ["P0", "P1", "P2", "A0", "A1", "A2", "L0", "L1", "L2", "Cx", "Cy", "Sx", "Sy", "E"]
@@ -289,6 +290,7 @@ def deleteTriangle(index):
     x = index // (maxY+1)
     y = index % (maxY+1)
     tmp = t[(t["Sx"] == x) & (t["Sy"] == y)]
+    i = 0
     
     random.seed(index)
     print(str(x) + ", " + str(y) + ": " + str(tmp.shape[0]))
@@ -309,6 +311,13 @@ def deleteTriangle(index):
             tmp = deleteTriangleEdgeDiffMinNovelty(tmp)
         elif (deleteMethod == "angleDiff"):
             tmp = deleteTriangleFromAngle(tmp)
+        elif (deleteMethod == "minNovE_minNovE_edgeDiff"):
+            if (i % 3 == 0):
+                tmp = deleteTriangleMinNoveltyE(tmp)
+            elif (i % 3 == 1):
+                tmp = deleteTriangleMinNoveltyE(tmp)
+            elif (i % 3 == 2):
+                tmp = deleteTriangleFromEdgeDiff(tmp)
 
     tmp.to_csv("tmp/" + str(x) + "_" + str(y) + "_" + re.sub('.csv', '_' + str(deleteMethod) + '_' + str(threshold) + "_" + str(kNearestNeighbor) + '.csv', file), header=False, index=False, mode="a")
 
