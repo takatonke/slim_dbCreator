@@ -126,6 +126,8 @@ for i in range(size - 2):
          # 二等辺三角形チェック
          #if((abs(line_ij - line_jk) < sameLength) or (abs(line_jk - line_ki) < sameLength) or (abs(line_ki - line_ij) < sameLength)):
          #   continue
+         if((abs(line_ij - line_jk) < 0.1 * line_ki) or (abs(line_ij - line_ki) < 0.1 * line_jk) or (abs(line_jk - line_ki) < 0.1 * line_ij)):
+               continue
 
          # 余弦定理で角度cos
          cos = [0, 0, 0]
